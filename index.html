@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sree Venkateswaraa Regular Service — Transport Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --paper: #F7F2E7;
+    --paper-deep: #F0E9D8;
+    --line: #DCD2B4;
+    --ink: #23303D;
+    --ink-soft: #6B7480;
+    --stamp: #A6392F;
+    --teal: #2F6B5E;
+    --teal-deep: #234F45;
+    --teal-soft: #E3EEE9;
+    --danger: #A6392F;
+    --radius: 10px;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background: var(--paper);
+    background-image: repeating-linear-gradient(
+      to bottom, transparent 0px, transparent 34px, var(--line) 34px, var(--line) 35px
+    );
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    min-height: 100vh;
+    padding: 0 0 60px 0;
+  }
+  .wrap{ max-width: 900px; margin: 0 auto; padding: 28px 20px 0; }
+
+  header.ledger-head{
+    text-align:center;
+    border-bottom: 3px double var(--ink);
+    padding-bottom: 16px;
+    margin-bottom: 20px;
+  }
+  .brand{
+    font-family: 'Fraunces', serif;
+    font-weight: 700;
+    font-size: 26px;
+    letter-spacing: 0.4px;
+  }
+  .brand small{
+    display:block;
+    font-family:'Inter',sans-serif;
+    font-weight:500;
+    font-size:12px;
+    color: var(--ink-soft);
+    letter-spacing: 1.8px;
+    text-transform: uppercase;
+    margin-top: 4px;
+  }
+
+  .header-fields{
+    display:grid;
+    grid-template-columns: 2fr 1fr;
+    gap: 14px;
+    margin-bottom:18px;
+  }
+  @media (max-width: 640px){ .header-fields{ grid-template-columns: 1fr; } }
+  .header-fields .card{ margin-bottom:0; }
+
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius: var(--radius);
+    padding:18px 20px;
+    margin-bottom:18px;
+    box-shadow: 0 1px 2px rgba(35,48,61,0.04);
+  }
+  .card h2{
+    font-family:'Fraunces', serif;
+    font-size:15px;
+    margin:0 0 12px;
+    font-weight:600;
+  }
+  .field label{
+    display:block;
+    font-size:11px;
+    font-weight:600;
+    text-transform:uppercase;
+    letter-spacing:0.6px;
+    color: var(--ink-soft);
+    margin-bottom:5px;
+  }
+  .field select, .field input{
+    width:100%;
+    font-family:'Inter',sans-serif;
+    font-size:14px;
+    padding:9px 10px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    background:#fff;
+    color:var(--ink);
+  }
+  .field input[type=month]{ font-family:'IBM Plex Mono', monospace; }
+
+  .entry-form{
+    display:grid;
+    grid-template-columns: 1.6fr 1.3fr 0.8fr 0.8fr 1fr auto;
+    gap:10px;
+    align-items:end;
+  }
+  @media (max-width: 760px){ .entry-form{ grid-template-columns: 1fr 1fr; } }
+
+  .field.price-field input{
+    font-family:'IBM Plex Mono', monospace;
+    font-weight:600;
+    background: var(--paper-deep);
+    color: var(--ink-soft);
+  }
+
+  .add-btn{
+    background: var(--teal);
+    color:#fff;
+    border:none;
+    border-radius:8px;
+    padding:9px 18px;
+    font-weight:600;
+    font-size:14px;
+    cursor:pointer;
+    white-space:nowrap;
+    height:38px;
+  }
+  .add-btn:hover{ background: var(--teal-deep); }
+  .add-btn:disabled{ background:#bbb; cursor:not-allowed; }
+
+  .empty-note{ font-size:13px; color: var(--stamp); margin-top:10px; }
+
+  table.ledger{ width:100%; border-collapse: collapse; font-size:14px; }
+  table.ledger thead th{
+    text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.6px;
+    color: var(--ink-soft); border-bottom: 2px solid var(--ink); padding:8px 6px;
+  }
+  table.ledger tbody td{ padding:9px 6px; border-bottom: 1px solid var(--line); }
+  table.ledger tbody tr:hover{ background: var(--teal-soft); }
+  .num{ font-family:'IBM Plex Mono', monospace; text-align:right; }
+  .del-btn{ background:none; border:none; color: var(--stamp); cursor:pointer; font-size:16px; line-height:1; padding:4px 6px; }
+  .del-btn:hover{ opacity:0.6; }
+
+  .total-row{ display:flex; justify-content:flex-end; align-items:center; margin-top:16px; gap:14px; }
+  .stamp{
+    font-family:'Fraunces', serif; font-weight:700; font-size:20px; color: var(--stamp);
+    border: 3px double var(--stamp); border-radius:8px; padding:8px 18px;
+    transform: rotate(-3deg); letter-spacing: 0.5px;
+  }
+  .stamp span{ font-family:'IBM Plex Mono', monospace; }
+
+  .actions-row{ display:flex; gap:10px; flex-wrap:wrap; margin-top: 4px; }
+  .ghost-btn{
+    background:#fff; border:1px solid var(--line); color: var(--ink);
+    padding:9px 16px; border-radius:8px; font-size:13px; font-weight:600; cursor:pointer;
+  }
+  .ghost-btn:hover{ border-color: var(--teal); color: var(--teal-deep); }
+
+  footer.foot{ text-align:center; margin-top: 30px; }
+  .admin-link{ background:none; border:none; color: var(--ink-soft); font-size:12px; text-decoration: underline; cursor:pointer; }
+
+  #adminView{ display:none; }
+  .admin-shell h1{ font-family:'Fraunces', serif; font-size:22px; margin: 0 0 4px; }
+  .back-link{ background:none;border:none;color:var(--teal-deep);font-weight:600; font-size:13px;cursor:pointer;margin-bottom:14px;padding:0; }
+  .grid-2{ display:grid; grid-template-columns: 1fr 1fr; gap:18px; }
+  @media (max-width: 720px){ .grid-2{ grid-template-columns: 1fr; } }
+  .mini-form{ display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+  .mini-form input{ flex:1; min-width:100px; font-size:13px; padding:8px 10px; border:1px solid var(--line); border-radius:8px; }
+  .mini-form button{ background: var(--teal); color:#fff; border:none; border-radius:8px; padding:8px 14px; font-size:13px; font-weight:600; cursor:pointer; }
+  .list-row{ display:flex; align-items:center; justify-content:space-between; padding:8px 4px; border-bottom:1px solid var(--line); font-size:13px; gap:8px; }
+  .list-row .name{ font-weight:600; }
+  .list-row .area{ color:var(--ink-soft); font-size:12px; }
+  .list-row .row-actions button{ background:none;border:none;cursor:pointer;font-size:14px;color:var(--ink-soft); }
+  .list-row .row-actions button.del{ color: var(--danger); }
+  .pin-gate{ max-width:320px; margin: 80px auto; text-align:center; }
+  .pin-gate input{
+    font-family:'IBM Plex Mono', monospace; font-size:18px; text-align:center; letter-spacing:4px;
+    padding:10px; width:140px; border:1px solid var(--line); border-radius:8px; margin: 12px 0;
+  }
+  .pin-gate button{ display:block; margin: 0 auto; background: var(--teal); color:#fff; border:none; border-radius:8px; padding:9px 20px; font-weight:600; cursor:pointer; }
+  .toast{
+    position:fixed; bottom:24px; left:50%; transform:translateX(-50%);
+    background: var(--ink); color:#fff; padding:10px 18px; border-radius:8px; font-size:13px;
+    opacity:0; transition: opacity .25s ease; pointer-events:none; z-index:50;
+  }
+  .toast.show{ opacity:1; }
+  .loading-note{ color: var(--ink-soft); font-size:13px; padding:20px; text-align:center; }
+
+  @media print{
+    body{ background:#fff; }
+    .header-fields input, .header-fields select{ border:none; padding-left:0; }
+    .entry-form, footer.foot, .actions-row, .del-btn{ display:none !important; }
+    .card{ box-shadow:none; border:none; }
+    .stamp{ transform:none; }
+  }
+</style>
+</head>
+<body>
+
+<div id="mainView" class="wrap">
+  <header class="ledger-head">
+    <div class="brand" id="brandName">Sree Venkateswaraa Regular Service<small>Transport Portal</small></div>
+  </header>
+
+  <div class="header-fields">
+    <div class="card">
+      <h2>To (giving company)</h2>
+      <div class="field">
+        <label for="companyField">Company name</label>
+        <input id="companyField" placeholder="e.g. JL & Company">
+      </div>
+    </div>
+    <div class="card">
+      <h2>Month</h2>
+      <div class="field">
+        <label for="monthPicker">Month & year</label>
+        <input type="month" id="monthPicker">
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>Add an entry</h2>
+    <div class="entry-form">
+      <div class="field">
+        <label for="shopSelect">Shop name</label>
+        <select id="shopSelect"><option value="">Select a shop…</option></select>
+      </div>
+      <div class="field">
+        <label for="areaSelect">Area</label>
+        <select id="areaSelect"><option value="">—</option></select>
+      </div>
+      <div class="field">
+        <label for="qtyField">Qty</label>
+        <input id="qtyField" type="number" min="0" step="1" placeholder="0">
+      </div>
+      <div class="field">
+        <label for="rateField">Rate</label>
+        <input id="rateField" type="number" min="0" step="0.01" placeholder="0">
+      </div>
+      <div class="field price-field">
+        <label>Price</label>
+        <input id="priceField" readonly placeholder="₹0">
+      </div>
+      <button class="add-btn" id="addEntryBtn">Add row</button>
+    </div>
+    <div class="empty-note" id="noShopsNote" style="display:none;">
+      No shops set up yet. Open the Admin panel to add shops and areas.
+    </div>
+  </div>
+
+  <div class="card">
+    <h2 id="tableTitle">Entries</h2>
+    <div id="tableWrap"><p class="loading-note">Loading…</p></div>
+    <div class="total-row">
+      <div class="stamp">TOTAL <span id="totalAmount">₹0</span></div>
+    </div>
+  </div>
+
+  <div class="actions-row">
+    <button class="ghost-btn" id="printBtn">Print report</button>
+    <button class="ghost-btn" id="csvBtn">Download CSV</button>
+  </div>
+
+  <footer class="foot">
+    <button class="admin-link" id="openAdminBtn">Admin panel</button>
+  </footer>
+</div>
+
+<div id="adminView" class="wrap admin-shell">
+  <div id="pinGate" class="pin-gate">
+    <h1>Admin access</h1>
+    <p style="color:var(--ink-soft); font-size:13px;">Enter the admin PIN to manage shops and areas.</p>
+    <input id="pinInput" type="password" maxlength="4" inputmode="numeric" placeholder="••••">
+    <button id="pinSubmit">Unlock</button>
+    <p id="pinError" style="color:var(--danger); font-size:12px; display:none;">Wrong PIN — try again.</p>
+  </div>
+
+  <div id="adminPanel" style="display:none;">
+    <button class="back-link" id="backToMain">← Back to portal</button>
+    <h1>Admin panel</h1>
+    <p style="color:var(--ink-soft); font-size:13px; margin-top:-6px;">Manage the shops and areas that appear in the dropdowns. Changes appear immediately on the portal.</p>
+
+    <div class="grid-2">
+      <div class="card">
+        <h2>Shops & areas</h2>
+        <div class="mini-form">
+          <input id="newShopName" placeholder="Shop name">
+          <input id="newShopArea" placeholder="Area">
+          <button id="addShopBtn">Add</button>
+        </div>
+        <div id="shopList"></div>
+      </div>
+
+      <div class="card">
+        <h2>Portal name</h2>
+        <div class="mini-form">
+          <input id="businessNameInput" placeholder="Business name shown at the top">
+          <button id="saveBusinessNameBtn">Save</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Download a month's report</h2>
+      <p style="color:var(--ink-soft); font-size:12px; margin-top:-6px;">Pick any month to download the entries your mom has added, as a CSV file.</p>
+      <div class="mini-form">
+        <input type="month" id="adminMonthPicker">
+        <button id="adminDownloadBtn">Download CSV</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+const ADMIN_PIN = "2026"; // change this to whatever PIN you'd like
+
+// Seeded from DULUX_MAY_2026.pdf — only used the first time the shop list is empty.
+// Add, edit, or remove any of these later from the Admin panel.
+const DEFAULT_SHOPS = [
+  { name: "PRATHIKSHA TRADERS", area: "REGADAHALLI" },
+  { name: "VELAVAN H/W", area: "DHARMAPURI" },
+  { name: "CSK PAINTS", area: "DHARMAPURI" },
+  { name: "SRI SHIVAM H/W", area: "DHARMAPURI" },
+  { name: "THIRU ANNAMALAI H/W", area: "HARUR" },
+  { name: "GIRIBALAJI H/W", area: "DHARMAPURI" },
+  { name: "MAHALAXMI ELTS", area: "MATHEPALLI" },
+  { name: "MURUGAN ARUL H/W", area: "DHARMAPURI" },
+  { name: "AJ H/W", area: "KRISHNAGIRI" },
+  { name: "SRI AYYAPPA TRADERS", area: "POCHAMPALLI" },
+  { name: "PNP TRADERS", area: "PALACODE" },
+  { name: "SARATHI AGENCIES", area: "DHARMAPURI" },
+  { name: "DIWAKAR H/W", area: "DENKANIKOTTAI" },
+  { name: "PACHIYAMMAN PAINTS", area: "MAMARATHUPALLAM" },
+  { name: "PERIYANDAVAR PAINTS", area: "SOMENAHALLI" },
+  { name: "SHANKAR PAINTS", area: "DHARMAPURI" },
+  { name: "SRI VINAYAGA TRADERS", area: "DHARMAPURI" },
+  { name: "SRI GIRIBALAJI H/W", area: "DHARMAPURI" },
+  { name: "SRI VENKATESWARAA PAINTS", area: "HOSUR" },
+  { name: "SRI MADESHWARAA ELTS", area: "SHOOLAGIRI" },
+  { name: "MALAR ELTS", area: "MARANDAHALLI" },
+  { name: "MANISH", area: "DHARMAPURI" },
+  { name: "RANGA & CO", area: "PAPPARAPATTY" },
+  { name: "SRI SRINIVASA TILES", area: "VELAMPATTI" },
+  { name: "RAJA TRADERS", area: "KURUBARAPALLI" },
+  { name: "BALAJI & CO", area: "KADATHUR" },
+  { name: "ARUN ELTS", area: "VENKATASAMUDRAM" },
+  { name: "MANI MOBILES", area: "KADATHUR" }
+];
+
+let shops = [];
+let entriesByMonth = {}; // { "YYYY-MM": { company: "", rows: [ {id, shopId, shopName, area, qty, rate, price} ] } }
+let currentMonth = new Date().toISOString().slice(0,7);
+let businessName = "Sree Venkateswaraa Regular Service";
+
+function uid(){ return Date.now().toString(36) + Math.random().toString(36).slice(2,7); }
+
+function showToast(msg){
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'), 1800);
+}
+
+function escapeHtml(str){
+  const d = document.createElement('div');
+  d.textContent = str;
+  return d.innerHTML;
+}
+
+function monthLabel(m){
+  const [y,mm] = m.split('-');
+  const d = new Date(parseInt(y), parseInt(mm)-1, 1);
+  return d.toLocaleString('en-IN', {month:'long', year:'numeric'});
+}
+
+async function loadAll(){
+  try{
+    const s = await window.storage.get('shops-master', true);
+    shops = s ? JSON.parse(s.value) : [];
+  }catch(e){ shops = []; }
+
+  if(shops.length === 0){
+    shops = DEFAULT_SHOPS.map(s => ({ id: uid(), name: s.name, area: s.area }));
+    await saveShops();
+    showToast('Loaded ' + shops.length + ' shops from your sheet');
+  }
+
+  try{
+    const b = await window.storage.get('business-name', true);
+    businessName = b ? JSON.parse(b.value) : "Sree Venkateswaraa Regular Service";
+  }catch(e){ businessName = "Sree Venkateswaraa Regular Service"; }
+  document.getElementById('brandName').innerHTML = escapeHtml(businessName) + "<small>Transport Portal</small>";
+  document.getElementById('businessNameInput').value = businessName;
+
+  document.getElementById('monthPicker').value = currentMonth;
+  await loadMonthData(currentMonth);
+  document.getElementById('companyField').value = (entriesByMonth[currentMonth] && entriesByMonth[currentMonth].company) || '';
+
+  renderShopSelect();
+  renderAreaOptions();
+  renderTable();
+}
+
+async function saveShops(){
+  try{ await window.storage.set('shops-master', JSON.stringify(shops), true); }
+  catch(e){ showToast('Could not save shops'); }
+}
+
+async function loadMonthData(month){
+  if(entriesByMonth[month]) return;
+  try{
+    const r = await window.storage.get('entries:' + month, true);
+    entriesByMonth[month] = r ? JSON.parse(r.value) : { company: '', rows: [] };
+  }catch(e){
+    entriesByMonth[month] = { company: '', rows: [] };
+  }
+}
+async function saveMonthData(month){
+  try{
+    await window.storage.set('entries:' + month, JSON.stringify(entriesByMonth[month]), true);
+  }catch(e){ showToast('Could not save — try again'); }
+}
+
+function renderShopSelect(){
+  const sel = document.getElementById('shopSelect');
+  sel.innerHTML = '<option value="">Select a shop…</option>';
+  shops.forEach(s=>{
+    const opt = document.createElement('option');
+    opt.value = s.id;
+    opt.textContent = s.name;
+    sel.appendChild(opt);
+  });
+  document.getElementById('noShopsNote').style.display = shops.length === 0 ? 'block' : 'none';
+  document.getElementById('addEntryBtn').disabled = shops.length === 0;
+}
+
+function renderAreaOptions(selectedArea){
+  const sel = document.getElementById('areaSelect');
+  const areas = Array.from(new Set(shops.map(s=>s.area))).sort();
+  sel.innerHTML = '<option value="">—</option>';
+  areas.forEach(a=>{
+    const opt = document.createElement('option');
+    opt.value = a;
+    opt.textContent = a;
+    if(a === selectedArea) opt.selected = true;
+    sel.appendChild(opt);
+  });
+}
+
+document.getElementById('shopSelect').addEventListener('change', (e)=>{
+  const shop = shops.find(s=>s.id===e.target.value);
+  renderAreaOptions(shop ? shop.area : '');
+});
+
+function currentRows(){
+  const m = entriesByMonth[currentMonth];
+  return (m && m.rows) || [];
+}
+
+function renderTable(){
+  document.getElementById('tableTitle').textContent = 'Entries — ' + monthLabel(currentMonth);
+  const list = currentRows();
+  const wrap = document.getElementById('tableWrap');
+  if(list.length === 0){
+    wrap.innerHTML = '<p class="loading-note">No entries yet for this month. Add one above.</p>';
+  }else{
+    let html = '<table class="ledger"><thead><tr><th>#</th><th>Shop</th><th>Area</th><th class="num">Qty</th><th class="num">Rate</th><th class="num">Price</th><th></th></tr></thead><tbody>';
+    list.forEach((e,i)=>{
+      html += `<tr>
+        <td>${i+1}</td>
+        <td>${escapeHtml(e.shopName)}</td>
+        <td>${escapeHtml(e.area)}</td>
+        <td class="num">${e.qty}</td>
+        <td class="num">${e.rate}</td>
+        <td class="num">₹${e.price.toLocaleString('en-IN')}</td>
+        <td><button class="del-btn" data-id="${e.id}" title="Remove row">✕</button></td>
+      </tr>`;
+    });
+    html += '</tbody></table>';
+    wrap.innerHTML = html;
+    wrap.querySelectorAll('.del-btn').forEach(b=>{
+      b.onclick = ()=> removeEntry(b.getAttribute('data-id'));
+    });
+  }
+  const total = list.reduce((sum,e)=>sum+e.price,0);
+  document.getElementById('totalAmount').textContent = '₹' + total.toLocaleString('en-IN');
+}
+
+async function removeEntry(id){
+  const list = currentRows();
+  const idx = list.findIndex(e=>e.id===id);
+  if(idx>-1){
+    list.splice(idx,1);
+    await saveMonthData(currentMonth);
+    renderTable();
+  }
+}
+
+function updatePricePreview(){
+  const qty = parseFloat(document.getElementById('qtyField').value) || 0;
+  const rate = parseFloat(document.getElementById('rateField').value) || 0;
+  const price = qty * rate;
+  document.getElementById('priceField').value = price ? '₹' + price.toLocaleString('en-IN') : '';
+}
+document.getElementById('qtyField').addEventListener('input', updatePricePreview);
+document.getElementById('rateField').addEventListener('input', updatePricePreview);
+
+document.getElementById('addEntryBtn').addEventListener('click', async ()=>{
+  const shopId = document.getElementById('shopSelect').value;
+  const area = document.getElementById('areaSelect').value;
+  const qty = parseFloat(document.getElementById('qtyField').value);
+  const rate = parseFloat(document.getElementById('rateField').value);
+  if(!shopId){ showToast('Pick a shop first'); return; }
+  if(!area){ showToast('Pick an area'); return; }
+  if(!qty || qty<=0){ showToast('Enter a quantity'); return; }
+  if(!rate || rate<=0){ showToast('Enter a rate'); return; }
+  const shop = shops.find(s=>s.id===shopId);
+  const entry = { id: uid(), shopId, shopName: shop.name, area, qty, rate, price: qty*rate };
+  if(!entriesByMonth[currentMonth]) entriesByMonth[currentMonth] = { company:'', rows:[] };
+  entriesByMonth[currentMonth].rows.push(entry);
+  await saveMonthData(currentMonth);
+  renderTable();
+  document.getElementById('shopSelect').value = '';
+  renderAreaOptions('');
+  document.getElementById('qtyField').value = '';
+  document.getElementById('rateField').value = '';
+  document.getElementById('priceField').value = '';
+  showToast('Row added');
+});
+
+document.getElementById('companyField').addEventListener('change', async (e)=>{
+  if(!entriesByMonth[currentMonth]) entriesByMonth[currentMonth] = { company:'', rows:[] };
+  entriesByMonth[currentMonth].company = e.target.value;
+  await saveMonthData(currentMonth);
+});
+
+document.getElementById('monthPicker').addEventListener('change', async (e)=>{
+  currentMonth = e.target.value;
+  await loadMonthData(currentMonth);
+  document.getElementById('companyField').value = entriesByMonth[currentMonth].company || '';
+  renderTable();
+});
+
+document.getElementById('printBtn').addEventListener('click', ()=> window.print());
+
+document.getElementById('csvBtn').addEventListener('click', async ()=>{
+  const csv = await generateCsv(currentMonth);
+  downloadCsv(csv, businessName.replace(/\s+/g,'_') + '_' + currentMonth + '.csv');
+});
+
+async function generateCsv(month){
+  await loadMonthData(month);
+  const m = entriesByMonth[month] || { company:'', rows:[] };
+  let csv = businessName + '\n';
+  csv += 'To,' + (m.company || '') + '\n';
+  csv += 'Month,' + monthLabel(month) + '\n\n';
+  csv += 'S.No,Shop Name,Area,Qty,Rate,Price\n';
+  let total = 0;
+  m.rows.forEach((e,i)=>{
+    csv += `${i+1},"${e.shopName}","${e.area}",${e.qty},${e.rate},${e.price}\n`;
+    total += e.price;
+  });
+  csv += `TOTAL,,,,,${total}\n`;
+  return csv;
+}
+
+function downloadCsv(csv, filename){
+  const blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  a.style.display = 'none';
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
+  setTimeout(()=>URL.revokeObjectURL(url), 1000);
+  showToast('Downloading ' + filename);
+}
+
+// ---- Admin ----
+document.getElementById('openAdminBtn').addEventListener('click', ()=>{
+  document.getElementById('mainView').style.display = 'none';
+  document.getElementById('adminView').style.display = 'block';
+});
+document.getElementById('backToMain').addEventListener('click', ()=>{
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('mainView').style.display = 'block';
+});
+document.getElementById('pinSubmit').addEventListener('click', unlockAdmin);
+document.getElementById('pinInput').addEventListener('keydown', (e)=>{ if(e.key==='Enter') unlockAdmin(); });
+
+function unlockAdmin(){
+  const val = document.getElementById('pinInput').value;
+  if(val === ADMIN_PIN){
+    document.getElementById('pinGate').style.display = 'none';
+    document.getElementById('adminPanel').style.display = 'block';
+    renderAdminLists();
+  }else{
+    document.getElementById('pinError').style.display = 'block';
+  }
+}
+
+function renderAdminLists(){
+  const shopWrap = document.getElementById('shopList');
+  shopWrap.innerHTML = '';
+  if(shops.length === 0){
+    shopWrap.innerHTML = '<p class="loading-note">No shops yet — add one above.</p>';
+  }
+  shops.forEach(s=>{
+    const row = document.createElement('div');
+    row.className = 'list-row';
+    row.innerHTML = `<div><div class="name">${escapeHtml(s.name)}</div><div class="area">${escapeHtml(s.area)}</div></div>
+      <div class="row-actions">
+        <button class="edit" title="Edit">✎</button>
+        <button class="del" title="Delete">✕</button>
+      </div>`;
+    row.querySelector('.edit').onclick = async ()=>{
+      const newName = prompt('Shop name', s.name);
+      if(newName === null) return;
+      const newArea = prompt('Area', s.area);
+      if(newArea === null) return;
+      s.name = newName.trim() || s.name;
+      s.area = newArea.trim() || s.area;
+      await saveShops();
+      renderAdminLists();
+      renderShopSelect();
+      renderAreaOptions();
+      showToast('Shop updated');
+    };
+    row.querySelector('.del').onclick = async ()=>{
+      if(!confirm(`Remove "${s.name}"? This won't delete past entries.`)) return;
+      shops = shops.filter(x=>x.id!==s.id);
+      await saveShops();
+      renderAdminLists();
+      renderShopSelect();
+      renderAreaOptions();
+      showToast('Shop removed');
+    };
+    shopWrap.appendChild(row);
+  });
+}
+
+document.getElementById('addShopBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('newShopName').value.trim();
+  const area = document.getElementById('newShopArea').value.trim();
+  if(!name || !area){ showToast('Enter shop name and area'); return; }
+  shops.push({id: uid(), name, area});
+  await saveShops();
+  document.getElementById('newShopName').value = '';
+  document.getElementById('newShopArea').value = '';
+  renderAdminLists();
+  renderShopSelect();
+  renderAreaOptions();
+  showToast('Shop added');
+});
+
+document.getElementById('saveBusinessNameBtn').addEventListener('click', async ()=>{
+  const name = document.getElementById('businessNameInput').value.trim();
+  if(!name) return;
+  businessName = name;
+  try{ await window.storage.set('business-name', JSON.stringify(businessName), true); }catch(e){}
+  document.getElementById('brandName').innerHTML = escapeHtml(businessName) + "<small>Transport Portal</small>";
+  showToast('Portal name saved');
+});
+
+document.getElementById('adminMonthPicker').value = currentMonth;
+document.getElementById('adminDownloadBtn').addEventListener('click', async ()=>{
+  const month = document.getElementById('adminMonthPicker').value || currentMonth;
+  const csv = await generateCsv(month);
+  downloadCsv(csv, businessName.replace(/\s+/g,'_') + '_' + month + '.csv');
+});
+
+loadAll();
+</script>
+</body>
+</html>
